@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Register - TaskFlow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card app-card auth-card">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="auth-icon"><i class="bi bi-person-plus"></i></div>
+                    <h4 class="fw-bold mb-1">Account Banayen</h4>
+                    <p class="text-muted mb-0">Free account banayen aur tasks manage karen</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" name="username" class="form-control" placeholder="Aap ka naam" maxlength="50" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" class="form-control" placeholder="Kam az kam 6 characters" minlength="6" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                            <input type="password" name="confirm_password" class="form-control" placeholder="Password dobara likhen" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-person-check me-1"></i> Register
+                    </button>
+                </form>
+
+                <p class="text-center text-muted small mt-4 mb-0">
+                    Pehle se account hai?
+                    <a href="{{ url_for('login') }}" class="fw-semibold">Login karen</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-soft"><i class="bi bi-list-task"></i></div>
+            <div>
+                <div class="stat-number">{{ stats.total }}</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-hourglass-split"></i></div>
+            <div>
+                <div class="stat-number">{{ stats.active }}</div>
+                <div class="stat-label">Active</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-check-circle"></i></div>
+            <div>
+                <div class="stat-number">{{ stats.completed }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3 col-6">
+        <div class="stat-card flex-column align-items-stretch">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="stat-label">Progress</span>
+                <strong>{{ stats.percent }}%</strong>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" style="width: {{ stats.percent }}%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Add Task Form -->
+    <div class="col-lg-4">
+        <div class="card app-card">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Naya Task</h5>
+                <form action="{{ url_for('add') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="Kya karna hai?" maxlength="150" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Details (optional)"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" name="due_date" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg me-1"></i> Task Add Karen
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="col-lg-8">
+        <div class="card app-card">
+            <div class="card-body p-4">
+
+                <!-- Search + Filters -->
+                <div class="d-flex flex-column flex-md-row gap-3 justify-content-between mb-4">
+                    <form method="GET" class="flex-grow-1">
+                        <input type="hidden" name="status" value="{{ status }}">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Tasks search karen...">
+                        </div>
+                    </form>
+                    <div class="btn-group filter-group" role="group">
+                        <a href="{{ url_for('index', status='all', q=search) }}"
+                           class="btn btn-outline-primary {{ 'active' if status == 'all' }}">All</a>
+                        <a href="{{ url_for('index', status='active', q=search) }}"
+                           class="btn btn-outline-primary {{ 'active' if status == 'active' }}">Active</a>
+                        <a href="{{ url_for('index', status='completed', q=search) }}"
+                           class="btn btn-outline-primary {{ 'active' if status == 'completed' }}">Completed</a>
+                    </div>
+                </div>
+
+                <!-- Tasks -->
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <div class="task-item priority-{{ task.priority|lower }} {{ 'done' if task.completed }}">
+                        <a href="{{ url_for('toggle', task_id=task.id) }}" class="check-btn" title="Complete / Undo">
+                            <i class="bi {{ 'bi-check-circle-fill' if task.completed else 'bi-circle' }}"></i>
+                        </a>
+
+                        <div class="task-content">
+                            <div class="task-title">{{ task.title }}</div>
+                            {% if task.description %}
+                                <div class="task-desc">{{ task.description }}</div>
+                            {% endif %}
+                            <div class="task-meta">
+                                <span class="badge badge-{{ task.priority|lower }}">{{ task.priority }}</span>
+                                {% if task.due_date %}
+                                    <span class="{{ 'text-danger fw-semibold' if task.is_overdue else 'text-muted' }}">
+                                        <i class="bi bi-calendar-event"></i>
+                                        {{ task.due_date.strftime('%d %b %Y') }}
+                                        {% if task.is_overdue %}(Overdue){% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="task-actions">
+                            <a href="{{ url_for('edit', task_id=task.id) }}" class="btn btn-sm btn-light" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('delete', task_id=task.id) }}" method="POST" class="d-inline delete-form">
+                                <button type="submit" class="btn btn-sm btn-light text-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-clipboard-check"></i>
+                        <h5>Koi task nahi mila</h5>
+                        <p class="text-muted mb-0">Left side se naya task add karen.</p>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
